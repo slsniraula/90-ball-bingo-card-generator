@@ -1,6 +1,6 @@
 /**
  * @file index.mjs
- * @description Production-ready Tambola/Housie Bingo Card Generator.
+ * @description Production-ready Bingo/Housie Bingo Card Generator.
  *              Generates a PDF with 100 unique, validated 9×3 bingo cards.
  *              Uses jsPDF 2.5.x for PDF generation.
  *
@@ -22,7 +22,7 @@ import fs from "fs";
 
 /** @type {Object} Global configuration — no magic numbers anywhere else */
 const CONFIG = {
-  TOTAL_CARDS: 100,
+  TOTAL_CARDS: 200,
 
   CARD: {
     ROWS: 3,
@@ -34,29 +34,28 @@ const CONFIG = {
   },
 
   LAYOUT: {
-    PAGE_WIDTH: 210,   // A4 width  (mm)
-    PAGE_HEIGHT: 297,  // A4 height (mm)
-    MARGIN: 10,        // outer page margin (mm)
-    CARD_WIDTH: 90,    // card width  (mm)
-    // 3 cards tall: 10 + 3×80 + 2×12 + 10 = 286mm ≤ 297mm ✓
-    CARD_HEIGHT: 70,   // card height (mm)
-    CARD_GAP_X: 10,    // horizontal gap between cards (mm)
-    CARD_GAP_Y: 22,     // vertical gap between cards   (mm)
-    CARDS_PER_ROW: 2,
-    CARDS_PER_COL: 3,
-    CARDS_PER_PAGE: 6,
-    HEADER_HEIGHT: 8,  // slim card-number header height (mm)
-  },
+  PAGE_WIDTH: 210,
+  PAGE_HEIGHT: 297,
+  MARGIN: 15,        // was 8 — gives safe edge before first card
+  CARD_WIDTH: 85,    // was 90 — slightly narrower to absorb the bigger gaps
+  CARD_HEIGHT: 55,   // was 65
+  CARD_GAP_X: 20,    // was 8 — wide enough to cut down the centre
+  CARD_GAP_Y: 20,    // was 8 — same vertically
+  CARDS_PER_ROW: 2,
+  CARDS_PER_COL: 4,
+  CARDS_PER_PAGE: 8,
+  HEADER_HEIGHT: 7,
+},
 
   STYLING: {
-    BORDER_WIDTH: 1,          // card outer border (pt)
+    BORDER_WIDTH: 2,          // card outer border (pt)
     CELL_BORDER_WIDTH: 0.5,   // grid cell border  (pt)
     HEADER_BG: "#F0F0F0",
     CELL_BG_FILLED: "#F5F9FF",
     CELL_BG_BLANK: "#FFFFFF",
     BORDER_COLOR: "#000000",
-    CELL_BORDER_COLOR: "#CCCCCC",
-    HEADER_TEXT_COLOR: "#333333",
+    CELL_BORDER_COLOR: "#000000",
+    HEADER_TEXT_COLOR: "#000000",
     NUMBER_TEXT_COLOR: "#000000",
     NUMBER_FONT_SIZE: 14,     // pt — numbers inside grid cells
     CARD_ID_FONT_SIZE: 11,    // pt — "Card #NNN" in header
@@ -123,7 +122,7 @@ function hexToRgb(hex) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Generates one valid Tambola card.
+ * Generates one valid Bingo card.
  *
  * Card is represented as a 2-D array: card[col][row]
  * Null means the cell is blank.
@@ -306,7 +305,7 @@ function pickDistinctNumbers(min, max, count) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Validates a generated card against all Tambola rules.
+ * Validates a generated card against all Bingo rules.
  *
  * @param {(number|null)[][]} card  card[col][row]
  * @returns {{ valid: boolean, errors: string[] }}
@@ -401,7 +400,7 @@ function isUnique(card) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Generates a single, unique, validated Tambola card.
+ * Generates a single, unique, validated Bingo card.
  * Retries up to CONFIG.CARD.MAX_GEN_ATTEMPTS times.
  *
  * @param {number} cardId  1-based card identifier (for error messages)
@@ -438,7 +437,7 @@ function generateUniqueValidCard(cardId) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Renders a single Tambola card onto the PDF document at the given position.
+ * Renders a single Bingo card onto the PDF document at the given position.
  *
  * Layout inside the card bounding box (xOffset, yOffset):
  *  ┌─────────────────────────────────────────┐
@@ -568,7 +567,7 @@ function renderCardToPDF(doc, card, cardId, xOffset, yOffset) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Creates the complete jsPDF document containing 100 Tambola cards.
+ * Creates the complete jsPDF document containing 100 Bingo cards.
  * Cards are arranged 2×3 per A4 page (17 pages total).
  *
  * @returns {jsPDF}
@@ -652,7 +651,7 @@ function createPDFDocument() {
  */
 function main() {
   try {
-    console.log("🎱 Tambola Card Generator starting...");
+    console.log("🎱 Bingo Card Generator starting...");
     console.log(`   Generating ${CONFIG.TOTAL_CARDS} unique cards...`);
 
     const doc = createPDFDocument();
@@ -663,7 +662,7 @@ function main() {
       .toISOString()
       .replace(/[-:T]/g, "_")
       .split(".")[0]; // e.g. "2026_04_11_08_30_00"
-    const fileName = `Tambola_Cards_100_${timestamp}.pdf`;
+    const fileName = `Bingo_Cards_100_${timestamp}.pdf`;
 
     // Save to disk using Node.js Buffer output
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
